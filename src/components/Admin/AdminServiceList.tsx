@@ -15,12 +15,15 @@ import { Badge } from "@/components/ui/badge";
 import { servicesApi, Service } from "@/lib/api";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
+import ServiceForm from "./ServiceForm";
 
 const AdminServiceList = () => {
   const { toast } = useToast();
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState<Service | undefined>(undefined);
 
   useEffect(() => {
     fetchServices();
@@ -61,6 +64,21 @@ const AdminServiceList = () => {
         });
       }
     }
+  };
+
+  const handleAddService = () => {
+    setSelectedService(undefined);
+    setIsFormOpen(true);
+  };
+
+  const handleEditService = (service: Service) => {
+    setSelectedService(service);
+    setIsFormOpen(true);
+  };
+
+  const handleFormClose = () => {
+    setIsFormOpen(false);
+    setSelectedService(undefined);
   };
 
   const getCategoryBadge = (category: string) => {
@@ -137,7 +155,7 @@ const AdminServiceList = () => {
             Управление услугами клининговой компании
           </p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700">
+        <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleAddService}>
           <Plus className="mr-2 h-4 w-4" /> Добавить услугу
         </Button>
       </div>
@@ -168,7 +186,11 @@ const AdminServiceList = () => {
                   })}
                 </TableCell>
                 <TableCell className="text-right space-x-2">
-                  <Button size="sm" variant="outline">
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => handleEditService(service)}
+                  >
                     <Edit className="h-4 w-4" />
                   </Button>
                   <Button
@@ -185,6 +207,13 @@ const AdminServiceList = () => {
           </TableBody>
         </Table>
       </div>
+
+      <ServiceForm 
+        isOpen={isFormOpen} 
+        onClose={handleFormClose} 
+        service={selectedService} 
+        onSuccess={fetchServices}
+      />
     </div>
   );
 };
